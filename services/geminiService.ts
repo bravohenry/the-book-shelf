@@ -1,7 +1,15 @@
+
 import { GoogleGenAI, Type } from "@google/genai";
 import { AiChatResponse, BookDraft, Message } from "../types";
 
 const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+
+// Copied here to avoid circular dependency or import issues with types
+const PRESET_COLORS = [
+  '#e8dff5', '#fce1e4', '#fcf4dd', '#ddedea', 
+  '#daeaf6', '#fff1e6', '#fad2e1', '#c5dedd', 
+  '#dbe7e4', '#f0efeb', '#eddcd2', '#a8e6cf'
+];
 
 export const chatWithLibrarian = async (
   userMessage: string, 
@@ -28,13 +36,16 @@ export const chatWithLibrarian = async (
     USER INPUT: 
     "${userMessage}"
 
+    ALLOWED COLORS:
+    ${JSON.stringify(PRESET_COLORS)}
+
     RULES FOR AUTO-FILLING:
-    1. **Immediate Recognition**: If the user mentions a book title (e.g., "Steve Jobs", "Harry Potter", "The Alchemist"), you MUST immediately search your internal knowledge and fill:
+    1. **Immediate Recognition**: If the user mentions a book title, you MUST immediately search your internal knowledge and fill:
        - 'title' (Correct capitalization)
        - 'author' (The actual author)
        - 'genre' (Short, 1-2 words)
        - 'summary' (A 1-sentence hook)
-       - 'color' (Choose a hex color that fits the book's cover vibe. e.g., Steve Jobs = white/grey, Harry Potter = deep red/gold)
+       - 'color': You MUST Choose one hex code from the ALLOWED COLORS list that best fits the book's vibe. Do not invent new colors.
        - 'spineStyle' (randomly pick one)
     
     2. **Do Not Ask Known Facts**: Never ask "Who is the author?" if you already know the book. Just fill it.

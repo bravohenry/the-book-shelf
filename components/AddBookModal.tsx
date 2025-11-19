@@ -2,7 +2,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { BookDraft, Message, PRESET_COLORS } from '../types';
 import { chatWithLibrarian } from '../services/geminiService';
-import { Sparkles, Send, X, Check } from 'lucide-react';
+import { Send, X } from 'lucide-react';
 
 interface AddBookModalProps {
   isOpen: boolean;
@@ -29,7 +29,7 @@ const AddBookModal: React.FC<AddBookModalProps> = ({ isOpen, onClose, onAdd }) =
     summary: '',
     emotionalImpact: 50,
     personalNote: '',
-    color: '#1e3a8a' // Default nice blueish for start
+    color: PRESET_COLORS[0]
   });
   
   const [isReady, setIsReady] = useState(false);
@@ -95,7 +95,7 @@ const AddBookModal: React.FC<AddBookModalProps> = ({ isOpen, onClose, onAdd }) =
         summary: '',
         emotionalImpact: 50,
         personalNote: '',
-        color: '#1e3a8a'
+        color: PRESET_COLORS[0]
       });
       setIsReady(false);
     }, 500);
@@ -124,7 +124,7 @@ const AddBookModal: React.FC<AddBookModalProps> = ({ isOpen, onClose, onAdd }) =
         </button>
 
         {/* LEFT SIDE: Chat */}
-        <div className="w-full md:w-[55%] flex flex-col border-r border-gray-100 bg-white relative">
+        <div className="w-full md:w-[50%] flex flex-col border-r border-gray-100 bg-white relative">
             <div className="p-8 pb-4 flex items-center justify-between bg-white z-10">
                 <h3 className="font-bold text-ink font-hand text-3xl lowercase tracking-wide">page</h3>
             </div>
@@ -183,43 +183,39 @@ const AddBookModal: React.FC<AddBookModalProps> = ({ isOpen, onClose, onAdd }) =
         </div>
 
         {/* RIGHT SIDE: Preview */}
-        <div className="hidden md:flex w-[45%] bg-[#f9f7f2] p-10 flex-col items-center justify-center relative overflow-hidden">
-            <div className="absolute top-8 text-gray-300 font-hand text-sm tracking-widest lowercase">drafting...</div>
+        <div className="hidden md:flex w-[50%] bg-[#fcfbf9] p-10 flex-col items-center justify-center relative overflow-hidden">
             
-            {/* Red Dashed Border Area (Visual container per screenshot) */}
-            <div className="border-2 border-dashed border-red-400/60 p-4 rounded-xl relative">
-                {/* The Book Card */}
-                <div 
-                    className="w-[300px] aspect-[2/3] rounded-lg shadow-2xl flex flex-col relative overflow-hidden transition-colors duration-500"
-                    style={{ backgroundColor: draft.color }}
-                >
-                    {/* Texture */}
-                    <div className="absolute inset-0 bg-noise opacity-20 pointer-events-none"></div>
+            {/* The Book Card - Clean Layout */}
+            <div 
+                className="w-[320px] aspect-[2/3] rounded-xl shadow-2xl flex flex-col relative overflow-hidden transition-colors duration-500"
+                style={{ backgroundColor: draft.color }}
+            >
+                {/* Texture */}
+                <div className="absolute inset-0 bg-noise opacity-20 pointer-events-none"></div>
+                
+                {/* Content Container */}
+                <div className="relative z-10 flex-1 flex flex-col items-center text-center p-8">
                     
-                    {/* Content Container */}
-                    <div className="relative z-10 flex-1 flex flex-col items-center text-center p-6">
+                    {/* Top Space */}
+                    <div className="flex-1 flex flex-col justify-center w-full pt-8">
+                        {draft.title ? (
+                            <h2 className={`text-4xl font-hand font-bold leading-none lowercase mb-3 ${textColorClass}`}>
+                                {draft.title}
+                            </h2>
+                        ) : (
+                            <div className="h-8 w-3/4 bg-black/10 rounded mx-auto animate-pulse"></div>
+                        )}
                         
-                        {/* Top Space */}
-                        <div className="flex-1 flex flex-col justify-end pb-4 w-full">
-                            {draft.title ? (
-                                <h2 className={`text-4xl font-hand font-bold leading-none lowercase mb-2 ${textColorClass}`}>
-                                    {draft.title}
-                                </h2>
-                            ) : (
-                                <div className="h-8 w-3/4 bg-black/10 rounded mx-auto animate-pulse"></div>
-                            )}
-                            
-                            {draft.author ? (
-                                <p className={`font-hand text-lg lowercase ${mutedTextColorClass}`}>
-                                    by {draft.author}
-                                </p>
-                            ) : (
-                                <div className="h-4 w-1/2 bg-black/10 rounded mx-auto mt-3 animate-pulse delay-75"></div>
-                            )}
-                        </div>
-
-                        {/* Stars */}
-                        <div className="flex justify-center gap-1 mb-8">
+                        {draft.author ? (
+                            <p className={`font-hand text-lg lowercase opacity-80 ${textColorClass}`}>
+                                by {draft.author}
+                            </p>
+                        ) : (
+                            <div className="h-4 w-1/2 bg-black/10 rounded mx-auto mt-3 animate-pulse delay-75"></div>
+                        )}
+                        
+                         {/* Stars */}
+                        <div className="flex justify-center gap-1 mt-6">
                             {[1,2,3,4,5].map(star => (
                                 <button 
                                     key={star} 
@@ -238,41 +234,36 @@ const AddBookModal: React.FC<AddBookModalProps> = ({ isOpen, onClose, onAdd }) =
                                 </button>
                             ))}
                         </div>
+                    </div>
 
-                        {/* Note Box */}
-                        <div className={`w-full p-4 rounded-xl mb-6 transition-colors ${isDarkColor(draft.color) ? 'bg-white/20' : 'bg-black/5'}`}>
-                             <p className={`font-hand text-lg italic leading-tight lowercase ${textColorClass}`}>
-                                "{draft.personalNote || "waiting for your thoughts..."}"
-                             </p>
-                        </div>
+                    {/* Note Box */}
+                    <div className={`w-full p-5 rounded-2xl mb-6 transition-colors backdrop-blur-sm ${isDarkColor(draft.color) ? 'bg-white/20' : 'bg-black/5'}`}>
+                         <p className={`font-hand text-xl italic leading-tight lowercase ${textColorClass}`}>
+                            "{draft.personalNote || "waiting for your thoughts..."}"
+                         </p>
+                    </div>
 
-                        {/* Color Dots (Bottom) */}
-                        <div className="flex justify-center gap-2 mt-auto pt-2">
-                            {PRESET_COLORS.slice(0, 8).map(c => (
-                                <button 
-                                    key={c}
-                                    onClick={() => setDraft({...draft, color: c})}
-                                    className={`w-3 h-3 rounded-full transition-all hover:scale-125 ${draft.color === c ? 'ring-2 ring-white scale-125' : 'opacity-60 hover:opacity-100'}`}
-                                    style={{ backgroundColor: c }}
-                                />
-                            ))}
-                        </div>
+                    {/* Color Dots (Inside Card Bottom) */}
+                    <div className="flex justify-center gap-2 mt-auto pt-4 pb-2">
+                        {PRESET_COLORS.slice(0, 8).map(c => (
+                            <button 
+                                key={c}
+                                onClick={() => setDraft({...draft, color: c})}
+                                className={`w-3 h-3 rounded-full transition-all hover:scale-125 shadow-sm ${draft.color === c ? 'ring-2 ring-white scale-125' : 'opacity-60 hover:opacity-100'}`}
+                                style={{ backgroundColor: c }}
+                            />
+                        ))}
                     </div>
                 </div>
             </div>
-            
-            {/* Bottom Helper Text */}
-            <p className="mt-4 text-red-400/60 text-xs font-hand lowercase max-w-[300px] text-center">
-                这里的书的颜色 AI只能从我们定的下面的颜色里面去选择
-            </p>
 
-            {/* Add Button (Outside the dashed box) */}
-            <div className={`absolute bottom-8 right-10 transition-all duration-500 ${isReady ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'}`}>
+            {/* Add Button */}
+            <div className={`absolute bottom-10 right-12 transition-all duration-500 ${isReady ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'}`}>
                 <button 
                     onClick={handleAdd}
-                    className="flex items-center gap-2 text-ink/50 hover:text-ink font-hand text-xl lowercase transition-colors"
+                    className="flex items-center gap-2 text-ink/40 hover:text-ink font-hand text-xl lowercase transition-colors"
                 >
-                    <div className="w-10 h-10 bg-transparent border-2 border-current rounded-full flex items-center justify-center">
+                    <div className="w-8 h-8 bg-transparent border-2 border-current rounded-full flex items-center justify-center">
                         <PlusIcon />
                     </div>
                     add book
@@ -285,7 +276,7 @@ const AddBookModal: React.FC<AddBookModalProps> = ({ isOpen, onClose, onAdd }) =
 };
 
 const PlusIcon = () => (
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
         <line x1="12" y1="5" x2="12" y2="19"></line>
         <line x1="5" y1="12" x2="19" y2="12"></line>
     </svg>

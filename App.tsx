@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import Bookshelf from './components/Bookshelf';
 import BookDetailModal from './components/BookDetailModal';
@@ -105,37 +104,39 @@ const App: React.FC = () => {
       className={`min-h-screen transition-all duration-1000 ${loaded ? 'opacity-100' : 'opacity-0'} bg-noise overflow-hidden relative flex flex-col`}
       style={{ backgroundColor: backgroundColor }}
     >
-      {/* Header */}
-      <header className="pt-10 text-center px-4 mb-4 relative z-10 shrink-0">
-        <div className="inline-block relative w-full max-w-3xl">
-            <input
-              type="text"
-              value={shelfTitle}
-              onChange={(e) => setShelfTitle(e.target.value)}
-              className="text-5xl font-hand font-bold text-ink tracking-wide mb-1 relative z-10 drop-shadow-sm lowercase bg-transparent border-none text-center w-full focus:ring-0 focus:outline-none placeholder-ink/50 hover:opacity-80 transition-opacity cursor-text selection:bg-yellow-200"
-              spellCheck={false}
-            />
-            <input
-              type="text"
-              value={shelfSubtitle}
-              onChange={(e) => setShelfSubtitle(e.target.value)}
-              className="text-gray-400 font-hand text-sm tracking-widest lowercase mt-0 text-center w-full bg-transparent border-none focus:ring-0 placeholder-gray-300 hover:text-ink transition-colors"
-              spellCheck={false}
-            />
-        </div>
-      </header>
+      <div className="flex-1 flex flex-col items-center justify-center w-full py-12">
+        {/* Header */}
+        <header className="text-center px-4 relative z-10 shrink-0 mb-8">
+          <div className="inline-block relative w-full max-w-3xl">
+              <input
+                type="text"
+                value={shelfTitle}
+                onChange={(e) => setShelfTitle(e.target.value)}
+                className="text-5xl font-hand font-bold text-ink tracking-wide mb-1 relative z-10 drop-shadow-sm lowercase bg-transparent border-none text-center w-full focus:ring-0 focus:outline-none placeholder-ink/50 hover:opacity-80 transition-opacity cursor-text selection:bg-yellow-200"
+                spellCheck={false}
+              />
+              <input
+                type="text"
+                value={shelfSubtitle}
+                onChange={(e) => setShelfSubtitle(e.target.value)}
+                className="text-gray-400 font-hand text-sm tracking-widest lowercase mt-0 text-center w-full bg-transparent border-none focus:ring-0 placeholder-gray-300 hover:text-ink transition-colors"
+                spellCheck={false}
+              />
+          </div>
+        </header>
 
-      {/* Main Content */}
-      <main className="relative z-10 flex-1">
-        <Bookshelf 
-          books={books} 
-          onBookClick={handleBookClick} 
-          onReorder={handleReorderBooks}
-          lightSource={lightSource}
-          isMusicPlaying={isMusicPlaying}
-          onToggleMusic={toggleMusic}
-        />
-      </main>
+        {/* Main Content */}
+        <main className="relative z-10 w-full">
+          <Bookshelf 
+            books={books} 
+            onBookClick={handleBookClick} 
+            onReorder={handleReorderBooks}
+            lightSource={lightSource}
+            isMusicPlaying={isMusicPlaying}
+            onToggleMusic={toggleMusic}
+          />
+        </main>
+      </div>
 
       {/* Theme Switcher */}
       <div className="fixed bottom-8 left-6 md:bottom-10 md:left-10 z-40 group opacity-0 hover:opacity-100 transition-opacity duration-300">

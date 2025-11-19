@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useEffect, useMemo } from 'react';
 import { Book } from '../types';
 import BookSpine from './BookSpine';
@@ -26,11 +25,11 @@ interface ShelfItem {
 
 // --- VISUAL CONSTANTS ---
 
-const SHELF_HEIGHT = 230; // Reduced height to fit more on screen
-const SHELF_FLOOR_Y = 185; // Adjusted floor position relative to new height
+const SHELF_HEIGHT = 200; // Increased height for better clearance
+const SHELF_FLOOR_Y = 175; // Adjusted floor position lower
 const BOOK_WIDTH = 56; 
 const WIDGET_WIDTH = 180;
-const TOP_MARGIN = 60; // Reduced margin
+const TOP_MARGIN = 0; 
 const MIN_SHELVES = 2;
 
 // Physics
@@ -286,11 +285,11 @@ const Bookshelf: React.FC<BookshelfProps> = ({
 
   const finalRenderItems = dragId ? liveLayout : items;
 
-  // LIGHTER WOOD COLORS
-  const colorWoodMain = '#e6ddd5'; 
-  const colorWoodSide = '#d8cec5';
-  const colorShadow = '#c4b8ae';
-  const colorBack = '#f7f4f0';
+  // VINTAGE WOOD COLORS - STEADY TONE
+  const colorWoodMain = '#cdbba7'; 
+  const colorWoodSide = '#c4b19c';
+  const colorShadow = '#b5a493';
+  const colorBack = '#e6e0d9';
 
   return (
     <div 
@@ -309,7 +308,7 @@ const Bookshelf: React.FC<BookshelfProps> = ({
         style={{ 
             backgroundColor: colorWoodSide, 
             borderColor: colorShadow,
-            boxShadow: 'inset 2px 0 5px rgba(255,255,255,0.3), inset -2px 0 5px rgba(0,0,0,0.1)' 
+            boxShadow: 'inset 2px 0 5px rgba(255,255,255,0.1), inset -2px 0 5px rgba(0,0,0,0.15)' 
         }}
       ></div>
       
@@ -319,7 +318,7 @@ const Bookshelf: React.FC<BookshelfProps> = ({
         style={{ 
             backgroundColor: colorWoodSide, 
             borderColor: colorShadow,
-            boxShadow: 'inset -2px 0 5px rgba(255,255,255,0.3), inset 2px 0 5px rgba(0,0,0,0.1)' 
+            boxShadow: 'inset -2px 0 5px rgba(255,255,255,0.1), inset 2px 0 5px rgba(0,0,0,0.15)' 
         }}
       ></div>
 
@@ -329,7 +328,7 @@ const Bookshelf: React.FC<BookshelfProps> = ({
         style={{ 
             backgroundColor: colorWoodMain,
             borderColor: colorShadow,
-            boxShadow: '0 4px 6px rgba(0,0,0,0.05), inset 0 2px 4px rgba(255,255,255,0.4)'
+            boxShadow: '0 4px 6px rgba(0,0,0,0.1), inset 0 2px 4px rgba(255,255,255,0.2)'
         }}
       >
          <div className="absolute inset-0 opacity-20 bg-[url('https://www.transparenttextures.com/patterns/wood-pattern.png')] mix-blend-multiply rounded-sm"></div>
@@ -360,16 +359,17 @@ const Bookshelf: React.FC<BookshelfProps> = ({
 
                  {/* Ghost Indicator - Semi-transparent shelf logic */}
                  {isGhost && (
-                     <div className="absolute inset-0 z-0 flex flex-col justify-end opacity-60 animate-pulse">
+                     <div className="absolute inset-0 z-0 flex flex-col justify-end opacity-60 animate-pulse duration-1000">
                         {/* Ghost Floor */}
                         <div 
-                            className="absolute left-0 right-0 h-[20px] rounded-sm border-2 border-dashed border-shelf-shadow/50 bg-shelf-wood/30"
-                            style={{ top: `${SHELF_FLOOR_Y - 5}px` }}
+                            className="absolute left-0 right-0 h-[26px] rounded-sm bg-shelf-wood/50 backdrop-blur-sm shadow-inner"
+                            style={{ top: `${SHELF_FLOOR_Y - 10}px` }}
                         ></div>
+                        
                         {/* Ghost Label */}
-                        <div className="absolute inset-0 flex items-center justify-center">
-                             <span className="font-hand text-2xl text-shelf-shadow/60 lowercase font-bold bg-white/50 px-4 py-1 rounded-full">
-                                create new shelf
+                        <div className="absolute inset-0 flex items-center justify-center opacity-50">
+                             <span className="font-hand text-2xl text-ink/30 lowercase font-bold px-4 py-1 rounded-full">
+                                new shelf...
                              </span>
                         </div>
                      </div>
@@ -435,19 +435,19 @@ const Bookshelf: React.FC<BookshelfProps> = ({
                     style={{ 
                         backgroundColor: colorWoodMain,
                         borderColor: colorShadow,
-                        borderTopColor: '#f5ede6',
+                        borderTopColor: '#e6e0d9', // Slightly lighter than shelf back
                         borderBottomColor: colorShadow
                     }}
                 >
                      <div className="absolute inset-0 opacity-15 bg-[url('https://www.transparenttextures.com/patterns/wood-pattern.png')] mix-blend-multiply rounded-sm"></div>
-                     <div className="w-[98%] h-[1px] bg-white/40 absolute top-[1px] rounded-full"></div>
+                     <div className="w-[98%] h-[1px] bg-white/20 absolute top-[1px] rounded-full"></div>
                      
                      {/* Brackets */}
                      <div className="absolute bottom-[-4px] left-8 w-12 h-2 rounded-b-md shadow-sm opacity-80" style={{ backgroundColor: colorShadow }}></div>
                      <div className="absolute bottom-[-4px] right-8 w-12 h-2 rounded-b-md shadow-sm opacity-80" style={{ backgroundColor: colorShadow }}></div>
                 </div>
                 
-                <div className="absolute top-6 left-2 right-2 h-12 bg-black/5 blur-xl rounded-full mix-blend-multiply"></div>
+                <div className="absolute top-6 left-2 right-2 h-12 bg-black/10 blur-xl rounded-full mix-blend-multiply"></div>
             </div>
          );
       })}
