@@ -1,6 +1,7 @@
 
 import React, { useRef } from 'react';
 import { Book } from '../types';
+import { Globe } from 'lucide-react';
 
 interface BookSpineProps {
   book: Book;
@@ -15,8 +16,6 @@ const BookSpine: React.FC<BookSpineProps> = ({ book, onClick, lightSource, isGho
   const textColor = isDark ? 'text-white/90' : 'text-ink/70';
 
   const handleClick = (e: React.MouseEvent) => {
-    // Click is now handled by the parent via pointerup logic to differentiate drag vs click
-    // But we expose the rect for reference
     if (spineRef.current) {
       const rect = spineRef.current.getBoundingClientRect();
       onClick(book, rect);
@@ -38,7 +37,6 @@ const BookSpine: React.FC<BookSpineProps> = ({ book, onClick, lightSource, isGho
       return {};
   };
 
-  // Dynamic shadow based on light source
   const shadowOffset = lightSource === 'left' ? '2px' : '-2px';
   
   return (
@@ -54,7 +52,7 @@ const BookSpine: React.FC<BookSpineProps> = ({ book, onClick, lightSource, isGho
       `}
       style={{
         backgroundColor: book.color,
-        height: isGhost ? '100%' : `${book.height}%`, // Force full height if ghost to avoid parent-percentage issues
+        height: isGhost ? '100%' : `${book.height}%`, 
         width: '52px', 
         marginRight: '2px',
         marginLeft: '2px',
@@ -63,6 +61,13 @@ const BookSpine: React.FC<BookSpineProps> = ({ book, onClick, lightSource, isGho
         ...getSpinePattern()
       }}
     >
+      {/* Website Indicator */}
+      {book.itemType === 'website' && (
+          <div className={`absolute top-2 opacity-40 ${textColor}`}>
+              <Globe size={12} />
+          </div>
+      )}
+
       {/* Spine Text */}
       <span 
         className={`
@@ -94,7 +99,6 @@ const BookSpine: React.FC<BookSpineProps> = ({ book, onClick, lightSource, isGho
           <div className="absolute bottom-8 left-1/2 -translate-x-1/2 w-6 h-4 bg-white/30 rounded-sm backdrop-blur-sm"></div>
        )}
 
-      {/* Inner spine shadow (curvature) */}
       <div className={`absolute inset-0 rounded-sm pointer-events-none bg-gradient-to-${lightSource === 'left' ? 'r' : 'l'} from-transparent via-white/10 to-black/10 opacity-50`}></div>
       <div className={`absolute ${lightSource === 'left' ? 'left-0' : 'right-0'} top-0 bottom-0 w-[3px] bg-white/20 opacity-60`}></div>
     </div>

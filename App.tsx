@@ -3,11 +3,12 @@ import React, { useState, useEffect, useRef } from 'react';
 import Bookshelf from './components/Bookshelf';
 import BookDetailModal from './components/BookDetailModal';
 import AddBookModal from './components/AddBookModal';
+import AddWebsiteModal from './components/AddWebsiteModal';
 import ArchiveBox from './components/ArchiveBox';
 import ArchiveModal from './components/ArchiveModal';
 import ApiKeyModal from './components/ApiKeyModal';
 import { Book, BookDraft, INITIAL_BOOKS, Ornament, INITIAL_ORNAMENTS } from './types';
-import { Plus } from 'lucide-react';
+import { Plus, BookOpen, Globe } from 'lucide-react';
 import { playSfx } from './services/audioService';
 
 const THEMES = [
@@ -58,7 +59,7 @@ const App: React.FC = () => {
   });
   
   // Text & Theme
-  const [shelfTitle, setShelfTitle] = useState(() => localStorage.getItem('ems_title') || "em's book shelf");
+  const [shelfTitle, setShelfTitle] = useState(() => localStorage.getItem('ems_title') || "the wonderful book shelf");
   const [shelfSubtitle, setShelfSubtitle] = useState(() => localStorage.getItem('ems_subtitle') || "curated with love");
   const [activeThemeId, setActiveThemeId] = useState<string>(() => localStorage.getItem('ems_theme') || 'neutral');
   const [backgroundColor, setBackgroundColor] = useState(() => {
@@ -90,6 +91,7 @@ const App: React.FC = () => {
   const [selectedBook, setSelectedBook] = useState<Book | null>(null);
   const [selectedBookRect, setSelectedBookRect] = useState<DOMRect | null>(null);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [isAddWebsiteModalOpen, setIsAddWebsiteModalOpen] = useState(false);
   const [isArchiveModalOpen, setIsArchiveModalOpen] = useState(false);
   const [loaded, setLoaded] = useState(false);
   const [isDraggingItem, setIsDraggingItem] = useState(false);
@@ -122,9 +124,6 @@ const App: React.FC = () => {
   }, []);
 
   const toggleMusic = () => {
-    // playSfx('switch') is called inside the component for immediate feedback, 
-    // but we can also handle it here if we want logic separation. 
-    // Let's rely on the component click handler for the SFX to ensure it triggers.
     if (!audioRef.current) return;
     if (isMusicPlaying) {
       audioRef.current.pause();
@@ -136,12 +135,12 @@ const App: React.FC = () => {
 
   // --- HANDLERS ---
 
-  const handleAddButtonClick = () => {
+  const checkKeyAndOpen = (modalSetter: (val: boolean) => void) => {
       playSfx('pop');
       if (!apiKey) {
           setIsApiKeyModalOpen(true);
       } else {
-          setIsAddModalOpen(true);
+          modalSetter(true);
       }
   };
 
@@ -149,30 +148,47 @@ const App: React.FC = () => {
       playSfx('success');
       setApiKey(key);
       setIsApiKeyModalOpen(false);
-      // Optional: Immediately open add modal after saving
-      setTimeout(() => setIsAddModalOpen(true), 300);
   };
 
   const handleAddBook = (draft: BookDraft & { color: string }) => {
-    playSfx('success');
+    addBookItem(draft, 'book');
+  };
+
+  const handleAddWebsite = (draft: BookDraft & { color: string }) => {
+    addBookItem(draft, 'website');
+  };
+
+  const handleBatchAddWebsites = (drafts: (BookDraft & { color: string })[]) => {
+    const newBooks: Book[] = drafts.map((draft, idx) => createBookFromDraft(draft, 'website', idx));
+    setBooks([...books, ...newBooks]);
+  };
+
+  const createBookFromDraft = (draft: BookDraft & { color: string }, type: 'book' | 'website', indexOffset: number = 0): Book => {
     const styles = ['simple', 'classic', 'modern', 'pattern-dots', 'pattern-lines'] as const;
     const randomStyle = styles[Math.floor(Math.random() * styles.length)];
     const randomRotation = (Math.random() * 4) - 2; 
     const randomHeight = 85 + Math.random() * 15; 
     
-    const newBook: Book = {
-      id: Date.now().toString(),
+    return {
+      id: (Date.now() + indexOffset).toString(),
+      itemType: type,
+      url: draft.url,
       ...draft,
       spineStyle: randomStyle,
       height: randomHeight,
       rotation: randomRotation,
       position: { shelfId: 0, xOffset: 50 } 
     };
+  };
+
+  const addBookItem = (draft: BookDraft & { color: string }, type: 'book' | 'website') => {
+    playSfx('success');
+    const newBook = createBookFromDraft(draft, type);
     setBooks([...books, newBook]);
   };
 
   const handleArchiveItem = (id: string, type: 'book' | 'ornament') => {
-      playSfx('drop'); // Box sound
+      playSfx('drop'); 
       if (type === 'book') {
           const item = books.find(b => b.id === id);
           if (item) {
@@ -240,7 +256,7 @@ const App: React.FC = () => {
                 type="text"
                 value={shelfSubtitle}
                 onChange={(e) => setShelfSubtitle(e.target.value)}
-                className="text-gray-400 font-hand text-sm tracking-widest lowercase mt-0 text-center w-full bg-transparent border-none focus:ring-0 focus:outline-none focus:outline-none placeholder-gray-300 hover:text-ink transition-colors"
+                className="text-gray-400 font-hand text-sm tracking-widest lowercase mt-0 text-center w-full bg-transparent border-none focus:ring-0 focus:outline-none focus:outline-none placeholder-gray-300 hover:text-ink transition-colors focus:outline-none"
                 spellCheck={false}
               />
           </div>
@@ -282,19 +298,43 @@ const App: React.FC = () => {
          </div>
       </div>
 
-      {/* Add Button */}
-      <div className="fixed bottom-8 right-6 md:bottom-10 md:right-10 z-40 group">
+      {/* Hover Menu for Adding Items */}
+      <div className="fixed bottom-8 right-6 md:bottom-10 md:right-10 z-40 group flex flex-col items-end gap-3">
+        
+        {/* Sub-buttons (Appear on Hover) */}
+        <div className="flex flex-col gap-3 transition-all duration-300 opacity-0 translate-y-4 group-hover:opacity-100 group-hover:translate-y-0 pointer-events-none group-hover:pointer-events-auto">
+            <button
+                onClick={() => checkKeyAndOpen(setIsAddWebsiteModalOpen)}
+                className="flex items-center justify-end gap-3 group/btn"
+            >
+                <span className="bg-ink text-paper px-3 py-1 rounded-lg font-hand text-sm lowercase shadow-md opacity-0 group-hover/btn:opacity-100 transition-opacity">add website</span>
+                <div className="w-12 h-12 rounded-full bg-white shadow-lg flex items-center justify-center text-ink border-2 border-transparent hover:border-ink transition-colors">
+                    <Globe size={20} />
+                </div>
+            </button>
+
+            <button
+                onClick={() => checkKeyAndOpen(setIsAddModalOpen)}
+                className="flex items-center justify-end gap-3 group/btn"
+            >
+                <span className="bg-ink text-paper px-3 py-1 rounded-lg font-hand text-sm lowercase shadow-md opacity-0 group-hover/btn:opacity-100 transition-opacity">add book</span>
+                <div className="w-12 h-12 rounded-full bg-white shadow-lg flex items-center justify-center text-ink border-2 border-transparent hover:border-ink transition-colors">
+                    <BookOpen size={20} />
+                </div>
+            </button>
+        </div>
+
+        {/* Main FAB */}
         <button
-          onClick={handleAddButtonClick}
           className="flex items-center gap-2 px-6 py-3 rounded-full transition-all duration-300
-            bg-transparent text-gray-400 border-2 border-transparent
-            group-hover:bg-ink group-hover:text-[#fdfbf7] group-hover:shadow-xl
-            font-hand text-xl lowercase"
+            bg-white/80 text-gray-400 border-2 border-white shadow-sm
+            hover:bg-ink hover:text-[#fdfbf7] hover:shadow-xl
+            font-hand text-xl lowercase backdrop-blur-sm"
         >
           <span className="group-hover:rotate-90 transition-transform duration-300">
             <Plus size={20} />
           </span>
-          add book
+          add...
         </button>
       </div>
 
@@ -327,6 +367,14 @@ const App: React.FC = () => {
         apiKey={apiKey}
         onClose={() => setIsAddModalOpen(false)}
         onAdd={handleAddBook}
+      />
+
+      <AddWebsiteModal
+        isOpen={isAddWebsiteModalOpen}
+        apiKey={apiKey}
+        onClose={() => setIsAddWebsiteModalOpen(false)}
+        onAdd={handleAddWebsite}
+        onBatchAdd={handleBatchAddWebsites}
       />
       
       <ArchiveModal 
