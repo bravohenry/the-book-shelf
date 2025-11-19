@@ -7,9 +7,9 @@ import { Book, BookDraft, INITIAL_BOOKS } from './types';
 import { Plus } from 'lucide-react';
 
 const THEMES = [
-  { id: 'neutral', bg: '#f0eadd', label: 'neutral' },
-  { id: 'cool', bg: '#daeaf6', label: 'cool' },
-  { id: 'warm', bg: '#fce1e4', label: 'warm' },
+  { id: 'neutral', bg: '#f4f1ea', label: 'neutral' },
+  { id: 'cool', bg: '#e3eef6', label: 'cool' },
+  { id: 'warm', bg: '#fdf2f4', label: 'warm' },
 ];
 
 // Royalty-free Lo-Fi track
@@ -69,15 +69,13 @@ const App: React.FC = () => {
     const randomRotation = (Math.random() * 4) - 2; 
     const randomHeight = 85 + Math.random() * 15; 
     
-    // Default placement for new books (start of shelf 0)
-    // In a real app, we'd find the first empty spot
     const newBook: Book = {
       id: Date.now().toString(),
       ...draft,
       spineStyle: randomStyle,
       height: randomHeight,
       rotation: randomRotation,
-      position: { shelfId: 0, xOffset: 50 } // Default placement, will overlap but user can move
+      position: { shelfId: 0, xOffset: 50 } 
     };
     setBooks([...books, newBook]);
   };
@@ -104,31 +102,31 @@ const App: React.FC = () => {
 
   return (
     <div 
-      className={`min-h-screen transition-all duration-1000 ${loaded ? 'opacity-100' : 'opacity-0'} pb-32 bg-noise overflow-hidden relative`}
+      className={`min-h-screen transition-all duration-1000 ${loaded ? 'opacity-100' : 'opacity-0'} bg-noise overflow-hidden relative flex flex-col`}
       style={{ backgroundColor: backgroundColor }}
     >
       {/* Header */}
-      <header className="pt-16 md:pt-20 text-center px-4 mb-8 relative z-10">
+      <header className="pt-10 text-center px-4 mb-4 relative z-10 shrink-0">
         <div className="inline-block relative w-full max-w-3xl">
             <input
               type="text"
               value={shelfTitle}
               onChange={(e) => setShelfTitle(e.target.value)}
-              className="text-5xl md:text-7xl font-hand font-bold text-ink tracking-wide mb-1 relative z-10 drop-shadow-sm lowercase bg-transparent border-none text-center w-full focus:ring-0 focus:outline-none placeholder-ink/50 hover:opacity-80 transition-opacity cursor-text selection:bg-yellow-200"
+              className="text-5xl font-hand font-bold text-ink tracking-wide mb-1 relative z-10 drop-shadow-sm lowercase bg-transparent border-none text-center w-full focus:ring-0 focus:outline-none placeholder-ink/50 hover:opacity-80 transition-opacity cursor-text selection:bg-yellow-200"
               spellCheck={false}
             />
             <input
               type="text"
               value={shelfSubtitle}
               onChange={(e) => setShelfSubtitle(e.target.value)}
-              className="text-gray-500 font-hand text-sm tracking-widest lowercase mt-1 text-center w-full bg-transparent border-none focus:ring-0 placeholder-gray-300 hover:text-ink transition-colors"
+              className="text-gray-400 font-hand text-sm tracking-widest lowercase mt-0 text-center w-full bg-transparent border-none focus:ring-0 placeholder-gray-300 hover:text-ink transition-colors"
               spellCheck={false}
             />
         </div>
       </header>
 
       {/* Main Content */}
-      <main className="relative z-10">
+      <main className="relative z-10 flex-1">
         <Bookshelf 
           books={books} 
           onBookClick={handleBookClick} 
@@ -139,14 +137,14 @@ const App: React.FC = () => {
         />
       </main>
 
-      {/* Theme Switcher - Bottom Left */}
+      {/* Theme Switcher */}
       <div className="fixed bottom-8 left-6 md:bottom-10 md:left-10 z-40 group opacity-0 hover:opacity-100 transition-opacity duration-300">
-         <div className="flex items-center gap-3 bg-ink/80 text-[#fdfbf7] px-6 py-3 md:py-4 rounded-full shadow-2xl border-4 border-white/10 backdrop-blur-md relative">
+         <div className="flex items-center gap-3 bg-ink/80 text-[#fdfbf7] px-6 py-3 rounded-full shadow-2xl border-4 border-white/10 backdrop-blur-md relative">
             {THEMES.map((theme) => (
               <button
                 key={theme.id}
                 onClick={() => handleThemeChange(theme)}
-                className={`w-6 h-6 md:w-8 md:h-8 rounded-full border-2 transition-all duration-300 ${
+                className={`w-6 h-6 rounded-full border-2 transition-all duration-300 ${
                   activeThemeId === theme.id 
                     ? 'border-white scale-110 ring-2 ring-white/20' 
                     : 'border-transparent hover:scale-110 opacity-60 hover:opacity-100'
@@ -162,14 +160,14 @@ const App: React.FC = () => {
       <div className="fixed bottom-8 right-6 md:bottom-10 md:right-10 z-40 group">
         <button
           onClick={() => setIsAddModalOpen(true)}
-          className="flex items-center gap-3 px-5 py-3 md:py-4 rounded-full transition-all duration-300
-            bg-transparent text-gray-400 border-4 border-transparent shadow-none
-            group-hover:bg-ink group-hover:text-[#fdfbf7] group-hover:shadow-2xl group-hover:border-white/10 group-hover:-translate-y-1
-            font-hand text-xl font-bold lowercase"
+          className="flex items-center gap-2 px-6 py-3 rounded-full transition-all duration-300
+            bg-transparent text-gray-400 border-2 border-transparent
+            group-hover:bg-ink group-hover:text-[#fdfbf7] group-hover:shadow-xl
+            font-hand text-xl lowercase"
         >
-          <div className="bg-transparent group-hover:bg-white/20 rounded-full p-1 group-hover:rotate-90 transition-all duration-500 text-gray-400 group-hover:text-white">
-            <Plus size={24} strokeWidth={2.5} />
-          </div>
+          <span className="group-hover:rotate-90 transition-transform duration-300">
+            <Plus size={20} />
+          </span>
           add book
         </button>
       </div>
