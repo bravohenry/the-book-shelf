@@ -7,6 +7,7 @@ import AddWebsiteModal from './components/AddWebsiteModal';
 import ArchiveBox from './components/ArchiveBox';
 import ArchiveModal from './components/ArchiveModal';
 import ApiKeyModal from './components/ApiKeyModal';
+import OnboardingModal from './components/OnboardingModal';
 import { Book, BookDraft, INITIAL_BOOKS, Ornament, INITIAL_ORNAMENTS } from './types';
 import { Plus, BookOpen, Globe } from 'lucide-react';
 import { playSfx } from './services/audioService';
@@ -72,6 +73,9 @@ const App: React.FC = () => {
   const [apiKey, setApiKey] = useState(() => localStorage.getItem('ems_gemini_api_key') || '');
   const [isApiKeyModalOpen, setIsApiKeyModalOpen] = useState(false);
 
+  // Onboarding State
+  const [isOnboardingOpen, setIsOnboardingOpen] = useState(false);
+
   // --- PERSISTENCE EFFECTS ---
   
   useEffect(() => { localStorage.setItem('ems_books', JSON.stringify(books)); }, [books]);
@@ -105,6 +109,13 @@ const App: React.FC = () => {
     audioRef.current.loop = true;
     audioRef.current.volume = 0.4;
     
+    // Check for first time user
+    const hasSeenGuide = localStorage.getItem('ems_has_seen_guide');
+    if (!hasSeenGuide) {
+        // Delay slightly for effect
+        setTimeout(() => setIsOnboardingOpen(true), 1000);
+    }
+
     const handleMouseMove = (e: MouseEvent) => {
         if (e.clientX < 200 && e.clientY > window.innerHeight - 200) {
             setIsHoveringArchive(true);
@@ -134,6 +145,15 @@ const App: React.FC = () => {
   };
 
   // --- HANDLERS ---
+  
+  const handleCloseOnboarding = () => {
+      setIsOnboardingOpen(false);
+      localStorage.setItem('ems_has_seen_guide', 'true');
+      // If no API key, suggest adding it after guide
+      if (!apiKey) {
+          setTimeout(() => setIsApiKeyModalOpen(true), 500);
+      }
+  };
 
   const checkKeyAndOpen = (modalSetter: (val: boolean) => void) => {
       playSfx('pop');
@@ -360,6 +380,11 @@ const App: React.FC = () => {
       <ApiKeyModal 
         isOpen={isApiKeyModalOpen} 
         onSave={handleSaveApiKey} 
+      />
+      
+      <OnboardingModal 
+        isOpen={isOnboardingOpen}
+        onClose={handleCloseOnboarding}
       />
 
       <AddBookModal
