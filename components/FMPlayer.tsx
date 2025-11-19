@@ -1,5 +1,6 @@
 
 import React from 'react';
+import { playSfx } from '../services/audioService';
 
 interface FMPlayerProps {
   isPlaying: boolean;
@@ -11,6 +12,10 @@ interface FMPlayerProps {
 const FMPlayer: React.FC<FMPlayerProps> = ({ isPlaying, onToggle, className = '', style = {} }) => {
   return (
     <div 
+      onClick={(e) => {
+        playSfx('switch');
+        if(onToggle) onToggle();
+      }}
       className={`relative w-44 h-28 cursor-pointer group shrink-0 select-none transition-transform hover:scale-[1.02] active:scale-[0.98] ${className}`}
       style={style}
       title={isPlaying ? "Turn Off Radio" : "Turn On Radio"}

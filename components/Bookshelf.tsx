@@ -1,23 +1,29 @@
+
 import React, { useState, useRef, useEffect, useMemo } from 'react';
-import { Book } from '../types';
+import { Book, Ornament } from '../types';
 import BookSpine from './BookSpine';
 import FMPlayer from './FMPlayer';
+import { playSfx } from '../services/audioService';
 
 interface BookshelfProps {
   books: Book[];
+  ornaments: Ornament[];
   onBookClick: (book: Book, rect: DOMRect) => void;
-  onReorder: (books: Book[]) => void;
+  onReorderBooks: (books: Book[]) => void;
+  onReorderOrnaments: (ornaments: Ornament[]) => void;
   lightSource: 'left' | 'right';
   isMusicPlaying: boolean;
   onToggleMusic: () => void;
+  onDragStateChange: (isDragging: boolean) => void;
+  onArchiveItem: (id: string, type: 'book' | 'ornament') => void;
 }
 
 // --- TYPES ---
 
 interface ShelfItem {
   id: string;
-  type: 'book' | 'widget';
-  data?: Book;
+  type: 'book' | 'ornament';
+  data: Book | Ornament;
   shelfId: number;
   x: number;
   width: number;
@@ -25,20 +31,20 @@ interface ShelfItem {
 
 // --- VISUAL CONSTANTS ---
 
-const SHELF_HEIGHT = 200; // Increased height for better clearance
-const SHELF_FLOOR_Y = 175; // Adjusted floor position lower
+const SHELF_HEIGHT = 200; 
+const SHELF_FLOOR_Y = 175; 
 const BOOK_WIDTH = 56; 
-const WIDGET_WIDTH = 180;
 const TOP_MARGIN = 0; 
 const MIN_SHELVES = 2;
 
 // Physics
-const CLUSTER_THRESHOLD = 30; 
 const SNAP_DISTANCE = 120; 
 
 const Bookshelf: React.FC<BookshelfProps> = ({ 
-  books, onBookClick, onReorder, lightSource, 
-  isMusicPlaying, onToggleMusic 
+  books, ornaments, onBookClick, 
+  onReorderBooks, onReorderOrnaments,
+  lightSource, isMusicPlaying, onToggleMusic,
+  onDragStateChange, onArchiveItem
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -47,7 +53,6 @@ const Bookshelf: React.FC<BookshelfProps> = ({
   const [items, setItems] = useState<ShelfItem[]>([]);
   const [shelfCount, setShelfCount] = useState(MIN_SHELVES);
   const [ghostShelfActive, setGhostShelfActive] = useState(false);
-  const [widgetPos, setWidgetPos] = useState({ shelfId: 1, x: 100 });
   const [dragId, setDragId] = useState<string | null>(null);
   const [dragState, setDragState] = useState<{
     currentX: number;
@@ -57,6 +62,15 @@ const Bookshelf: React.FC<BookshelfProps> = ({
     offsetX: number;
     offsetY: number;
   } | null>(null);
+
+  // --- HELPERS ---
+  
+  const getOrnamentWidth = (type: Ornament['type']) => {
+      switch (type) {
+          case 'fm-player': return 180;
+          default: return 100;
+      }
+  };
 
   // --- SYNC PROPS TO STATE ---
   
@@ -72,21 +86,22 @@ const Bookshelf: React.FC<BookshelfProps> = ({
       width: BOOK_WIDTH
     }));
 
-    const widgetItem: ShelfItem = {
-      id: 'fm-player',
-      type: 'widget',
-      shelfId: widgetPos.shelfId,
-      x: widgetPos.x,
-      width: WIDGET_WIDTH
-    };
+    const mappedOrnaments: ShelfItem[] = ornaments.map((o, i) => ({
+        id: o.id,
+        type: 'ornament',
+        data: o,
+        shelfId: o.position?.shelfId ?? (mappedBooks.length > 0 ? 1 : 0),
+        x: o.position?.xOffset ?? 150,
+        width: getOrnamentWidth(o.type)
+    }));
 
-    const allItems = [...mappedBooks, widgetItem];
+    const allItems = [...mappedBooks, ...mappedOrnaments];
     setItems(allItems);
     
     const maxShelf = allItems.reduce((max, i) => Math.max(max, i.shelfId), 0);
     setShelfCount(Math.max(MIN_SHELVES, maxShelf + 1));
 
-  }, [books, widgetPos, dragId]);
+  }, [books, ornaments, dragId]);
 
 
   // --- PHYSICS ENGINE HELPERS ---
@@ -101,6 +116,9 @@ const Bookshelf: React.FC<BookshelfProps> = ({
     e.preventDefault();
     e.stopPropagation();
     
+    // Sound effect for picking up
+    playSfx('pickup');
+
     const container = containerRef.current;
     if (!container) return;
     const rect = container.getBoundingClientRect();
@@ -124,6 +142,8 @@ const Bookshelf: React.FC<BookshelfProps> = ({
       offsetX,
       offsetY
     });
+    
+    onDragStateChange(true);
   };
 
   const liveLayout = useMemo(() => {
@@ -135,8 +155,6 @@ const Bookshelf: React.FC<BookshelfProps> = ({
     const dragCenterY = dragState.currentY; 
     let targetShelfId = Math.floor((dragCenterY - TOP_MARGIN) / SHELF_HEIGHT);
     
-    // Visual tolerance for creating a new shelf
-    // We want to trigger the ghost shelf when dragging slightly below the last real shelf
     const lastRealShelfBottom = (shelfCount * SHELF_HEIGHT) + TOP_MARGIN;
     
     let isGhost = false;
@@ -229,26 +247,46 @@ const Bookshelf: React.FC<BookshelfProps> = ({
 
     const handlePointerUp = (e: PointerEvent) => {
         if (!dragState) return;
+        
+        // CHECK FOR ARCHIVE DROP (Bottom Left Corner)
+        const archiveZoneSize = 200;
+        const isOverArchive = e.clientX < archiveZoneSize && e.clientY > (window.innerHeight - archiveZoneSize);
+        
+        const draggedItem = items.find(i => i.id === dragId);
 
+        if (isOverArchive && draggedItem) {
+             onArchiveItem(dragId!, draggedItem.type);
+             setDragId(null);
+             setDragState(null);
+             setGhostShelfActive(false);
+             onDragStateChange(false);
+             return;
+        }
+
+        // Normal Click Detection
         const dist = Math.hypot(e.clientX - dragState.startX, e.clientY - dragState.startY);
         if (dist < 5) {
-            const item = items.find(i => i.id === dragId);
-            if (item) {
-                if (item.type === 'widget') {
+            if (draggedItem) {
+                if (draggedItem.type === 'ornament' && (draggedItem.data as Ornament).type === 'fm-player') {
                     onToggleMusic();
-                } else if (item.type === 'book' && item.data) {
-                    const el = document.querySelector(`[data-book-id="${item.id}"]`);
+                } else if (draggedItem.type === 'book') {
+                    const el = document.querySelector(`[data-book-id="${draggedItem.id}"]`);
                     if (el) {
-                        onBookClick(item.data, el.getBoundingClientRect());
+                        onBookClick(draggedItem.data as Book, el.getBoundingClientRect());
                     }
                 }
             }
             setDragId(null);
             setDragState(null);
             setGhostShelfActive(false);
+            onDragStateChange(false);
             return;
         }
 
+        // Drop Sound
+        playSfx('drop');
+
+        // Apply new layout
         const newItems = liveLayout;
         setItems(newItems);
 
@@ -256,22 +294,27 @@ const Bookshelf: React.FC<BookshelfProps> = ({
         const newShelfCount = Math.max(MIN_SHELVES, maxOccupiedShelf + 1);
         setShelfCount(newShelfCount);
 
+        // Separate back into props updates
         const updatedBooks = newItems
             .filter(i => i.type === 'book')
             .map(i => ({
-                ...i.data!,
+                ...(i.data as Book),
                 position: { shelfId: i.shelfId, xOffset: i.x }
             }));
-        onReorder(updatedBooks);
+        onReorderBooks(updatedBooks);
 
-        const widget = newItems.find(i => i.type === 'widget');
-        if (widget) {
-            setWidgetPos({ shelfId: widget.shelfId, x: widget.x });
-        }
+        const updatedOrnaments = newItems
+            .filter(i => i.type === 'ornament')
+            .map(i => ({
+                ...(i.data as Ornament),
+                position: { shelfId: i.shelfId, xOffset: i.x }
+            }));
+        onReorderOrnaments(updatedOrnaments);
 
         setDragId(null);
         setDragState(null);
         setGhostShelfActive(false);
+        onDragStateChange(false);
     };
 
     window.addEventListener('pointermove', handlePointerMove);
@@ -280,7 +323,7 @@ const Bookshelf: React.FC<BookshelfProps> = ({
         window.removeEventListener('pointermove', handlePointerMove);
         window.removeEventListener('pointerup', handlePointerUp);
     };
-  }, [dragId, dragState, liveLayout, shelfCount, items, onReorder, onBookClick, onToggleMusic]);
+  }, [dragId, dragState, liveLayout, shelfCount, items, onReorderBooks, onReorderOrnaments, onBookClick, onToggleMusic, onDragStateChange, onArchiveItem]);
 
 
   const finalRenderItems = dragId ? liveLayout : items;
@@ -357,16 +400,13 @@ const Bookshelf: React.FC<BookshelfProps> = ({
                      <div className="absolute top-0 left-0 right-0 h-8 bg-gradient-to-b from-black/5 to-transparent"></div>
                  )}
 
-                 {/* Ghost Indicator - Semi-transparent shelf logic */}
+                 {/* Ghost Indicator */}
                  {isGhost && (
                      <div className="absolute inset-0 z-0 flex flex-col justify-end opacity-60 animate-pulse duration-1000">
-                        {/* Ghost Floor */}
                         <div 
                             className="absolute left-0 right-0 h-[26px] rounded-sm bg-shelf-wood/50 backdrop-blur-sm shadow-inner"
                             style={{ top: `${SHELF_FLOOR_Y - 10}px` }}
                         ></div>
-                        
-                        {/* Ghost Label */}
                         <div className="absolute inset-0 flex items-center justify-center opacity-50">
                              <span className="font-hand text-2xl text-ink/30 lowercase font-bold px-4 py-1 rounded-full">
                                 new shelf...
@@ -406,12 +446,14 @@ const Bookshelf: React.FC<BookshelfProps> = ({
             >
                 {item.type === 'book' ? (
                     <BookSpine 
-                        book={item.data!} 
+                        book={item.data as Book} 
                         onClick={() => {}} 
                         lightSource={lightSource}
                     />
                 ) : (
-                    <FMPlayer isPlaying={isMusicPlaying} />
+                    <>
+                       {(item.data as Ornament).type === 'fm-player' && <FMPlayer isPlaying={isMusicPlaying} />}
+                    </>
                 )}
             </div>
         );
@@ -429,24 +471,21 @@ const Bookshelf: React.FC<BookshelfProps> = ({
                     height: '30px' 
                 }}
             >
-                {/* Main Shelf Lip */}
                 <div 
                     className="h-7 w-full rounded-sm relative shadow-md flex items-center justify-center border-t border-b"
                     style={{ 
                         backgroundColor: colorWoodMain,
                         borderColor: colorShadow,
-                        borderTopColor: '#e6e0d9', // Slightly lighter than shelf back
+                        borderTopColor: '#e6e0d9',
                         borderBottomColor: colorShadow
                     }}
                 >
                      <div className="absolute inset-0 opacity-15 bg-[url('https://www.transparenttextures.com/patterns/wood-pattern.png')] mix-blend-multiply rounded-sm"></div>
                      <div className="w-[98%] h-[1px] bg-white/20 absolute top-[1px] rounded-full"></div>
                      
-                     {/* Brackets */}
                      <div className="absolute bottom-[-4px] left-8 w-12 h-2 rounded-b-md shadow-sm opacity-80" style={{ backgroundColor: colorShadow }}></div>
                      <div className="absolute bottom-[-4px] right-8 w-12 h-2 rounded-b-md shadow-sm opacity-80" style={{ backgroundColor: colorShadow }}></div>
                 </div>
-                
                 <div className="absolute top-6 left-2 right-2 h-12 bg-black/10 blur-xl rounded-full mix-blend-multiply"></div>
             </div>
          );

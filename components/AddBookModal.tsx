@@ -3,14 +3,55 @@ import React, { useState, useRef, useEffect } from 'react';
 import { BookDraft, Message, PRESET_COLORS } from '../types';
 import { chatWithLibrarian } from '../services/geminiService';
 import { Send, X } from 'lucide-react';
+import { playSfx } from '../services/audioService';
 
 interface AddBookModalProps {
   isOpen: boolean;
+  apiKey: string;
   onClose: () => void;
   onAdd: (draft: BookDraft & { color: string }) => void;
 }
 
-const AddBookModal: React.FC<AddBookModalProps> = ({ isOpen, onClose, onAdd }) => {
+// --- TYPEWRITER COMPONENT ---
+const TypewriterText = ({ text }: { text: string }) => {
+  const [displayed, setDisplayed] = useState('');
+  const [isComplete, setIsComplete] = useState(false);
+
+  useEffect(() => {
+    // Reset if text changes drastically (though typically text is stable per message id)
+    setDisplayed('');
+    setIsComplete(false);
+    
+    let i = 0;
+    const timer = setInterval(() => {
+      i++;
+      setDisplayed(text.slice(0, i));
+      
+      // Play very soft random tick
+      if (Math.random() > 0.7) {
+          playSfx('typing');
+      }
+
+      if (i >= text.length) {
+        clearInterval(timer);
+        setIsComplete(true);
+      }
+    }, 25); // 25ms speed - snappy but cute
+
+    return () => clearInterval(timer);
+  }, [text]);
+
+  return (
+    <span>
+      {displayed}
+      {!isComplete && (
+        <span className="inline-block w-1.5 h-4 ml-0.5 align-middle bg-ink/40 animate-pulse rounded-full" />
+      )}
+    </span>
+  );
+};
+
+const AddBookModal: React.FC<AddBookModalProps> = ({ isOpen, apiKey, onClose, onAdd }) => {
   // Chat State
   const [messages, setMessages] = useState<Message[]>([
     { id: 'init', role: 'assistant', content: "hi friend! i'm page 🌿. what book are we adding to your shelf today?" }
@@ -36,13 +77,14 @@ const AddBookModal: React.FC<AddBookModalProps> = ({ isOpen, onClose, onAdd }) =
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages, isTyping]);
+  }, [messages, isTyping, messages.length]); // Added length dependency to ensure scroll on new char updates
 
   if (!isOpen) return null;
 
   const handleSend = async () => {
     if (!input.trim()) return;
     
+    playSfx('pop');
     const userMsg: Message = { id: Date.now().toString(), role: 'user', content: input };
     const updatedMessages = [...messages, userMsg];
     
@@ -51,7 +93,7 @@ const AddBookModal: React.FC<AddBookModalProps> = ({ isOpen, onClose, onAdd }) =
     setIsTyping(true);
 
     try {
-      const response = await chatWithLibrarian(userMsg.content, draft, updatedMessages);
+      const response = await chatWithLibrarian(apiKey, userMsg.content, draft, updatedMessages);
       
       const aiMsg: Message = { 
         id: (Date.now() + 1).toString(), 
@@ -74,7 +116,7 @@ const AddBookModal: React.FC<AddBookModalProps> = ({ isOpen, onClose, onAdd }) =
 
     } catch (error) {
       setIsTyping(false);
-      setMessages(prev => [...prev, { id: Date.now().toString(), role: 'assistant', content: "oopsie, i got a bit confused! can you say that again?" }]);
+      setMessages(prev => [...prev, { id: Date.now().toString(), role: 'assistant', content: "oopsie, i got a bit confused! check your api key maybe?" }]);
     }
   };
 
@@ -138,7 +180,11 @@ const AddBookModal: React.FC<AddBookModalProps> = ({ isOpen, onClose, onAdd }) =
                                 ? 'bg-ink text-white rounded-br-sm' 
                                 : 'bg-[#f3f3f5] text-ink rounded-bl-sm'}
                         `}>
-                            {msg.content}
+                            {msg.role === 'assistant' ? (
+                              <TypewriterText text={msg.content} />
+                            ) : (
+                              msg.content
+                            )}
                         </div>
                     </div>
                 ))}
@@ -219,7 +265,10 @@ const AddBookModal: React.FC<AddBookModalProps> = ({ isOpen, onClose, onAdd }) =
                             {[1,2,3,4,5].map(star => (
                                 <button 
                                     key={star} 
-                                    onClick={() => setDraft({...draft, rating: star})}
+                                    onClick={() => {
+                                        playSfx('click');
+                                        setDraft({...draft, rating: star});
+                                    }}
                                     className="focus:outline-none hover:scale-110 transition-transform"
                                 >
                                     <svg 
@@ -248,7 +297,10 @@ const AddBookModal: React.FC<AddBookModalProps> = ({ isOpen, onClose, onAdd }) =
                         {PRESET_COLORS.slice(0, 8).map(c => (
                             <button 
                                 key={c}
-                                onClick={() => setDraft({...draft, color: c})}
+                                onClick={() => {
+                                    playSfx('click');
+                                    setDraft({...draft, color: c});
+                                }}
                                 className={`w-3 h-3 rounded-full transition-all hover:scale-125 shadow-sm ${draft.color === c ? 'ring-2 ring-white scale-125' : 'opacity-60 hover:opacity-100'}`}
                                 style={{ backgroundColor: c }}
                             />

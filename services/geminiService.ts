@@ -2,8 +2,6 @@
 import { GoogleGenAI, Type } from "@google/genai";
 import { AiChatResponse, BookDraft, Message } from "../types";
 
-const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
-
 // Copied here to avoid circular dependency or import issues with types
 const PRESET_COLORS = [
   '#e8dff5', '#fce1e4', '#fcf4dd', '#ddedea', 
@@ -12,11 +10,17 @@ const PRESET_COLORS = [
 ];
 
 export const chatWithLibrarian = async (
+  apiKey: string,
   userMessage: string, 
   currentDraft: Partial<BookDraft>,
   history: Message[]
 ): Promise<AiChatResponse> => {
   
+  if (!apiKey) {
+      throw new Error("No API Key provided");
+  }
+
+  const ai = new GoogleGenAI({ apiKey });
   const model = "gemini-2.5-flash";
   
   // Format recent history

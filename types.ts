@@ -1,4 +1,5 @@
 
+
 export interface Book {
   id: string;
   title: string;
@@ -12,6 +13,15 @@ export interface Book {
   spineStyle: 'simple' | 'classic' | 'modern' | 'pattern-dots' | 'pattern-lines';
   height: number; // visual height variation (percentage of shelf height)
   rotation: number; // slight tilt for organic feel
+  position?: {
+    shelfId: number;
+    xOffset: number;
+  }
+}
+
+export interface Ornament {
+  id: string;
+  type: 'fm-player';
   position?: {
     shelfId: number;
     xOffset: number;
@@ -47,75 +57,22 @@ export const PRESET_COLORS = [
   '#fce1e4', // Cotton Candy
   '#fcf4dd', // Lemon Chiffon
   '#ddedea', // Ice Water
-  '#daeaf6', // Cloud Blue
-  '#fff1e6', // Peaches
-  '#fad2e1', // Piggy Pink
-  '#c5dedd', // Seafoam
-  '#dbe7e4', // Minty
-  '#f0efeb', // Linen
-  '#eddcd2', // Biscuit
-  '#a8e6cf', // Magic Mint
+  '#daeaf6', // Pale Blue
+  '#fff1e6', // Soft Peach
+  '#fad2e1', // Light Pink
+  '#c5dedd', // Muted Teal
+  '#dbe7e4', // Grayish Cyan
+  '#f0efeb', // Foggy Grey
+  '#eddcd2', // Warm Beige
+  '#a8e6cf'  // Mint Green
 ];
 
 export const INITIAL_BOOKS: Book[] = [
-  {
-    id: '1',
-    title: 'A Little Life',
-    author: 'Hanya Yanagihara',
-    rating: 5,
-    genre: 'Literary Fiction',
-    summary: "This book is enormous in emotional scale, almost operatic. It explores trauma with an intensity that is hard to absorb yet impossible to avoid.",
-    emotionalImpact: 98,
-    personalNote: "Needed to know if it was as intense as ppl say.",
-    color: '#fad2e1',
-    spineStyle: 'classic',
-    height: 94,
-    rotation: -1.5,
-    position: { shelfId: 0, xOffset: 60 }
-  },
-  {
-    id: '2',
-    title: 'Sapiens',
-    author: 'Yuval Noah Harari',
-    rating: 4,
-    genre: 'Non-fiction',
-    summary: "A brief history of humankind, exploring how biology and history have defined us.",
-    emotionalImpact: 40,
-    personalNote: "Changed how I view history.",
-    color: '#daeaf6',
-    spineStyle: 'modern',
-    height: 88,
-    rotation: 1,
-    position: { shelfId: 0, xOffset: 140 }
-  },
-  {
-    id: '3',
-    title: 'Normal People',
-    author: 'Sally Rooney',
-    rating: 4,
-    genre: 'Romance',
-    summary: "A story of mutual fascination between two people who can't stay apart.",
-    emotionalImpact: 70,
-    personalNote: "Frustrating but beautiful.",
-    color: '#ddedea',
-    spineStyle: 'simple',
-    height: 85,
-    rotation: 0,
-    position: { shelfId: 0, xOffset: 220 }
-  },
-  {
-    id: '4',
-    title: 'Steve Jobs',
-    author: 'Walter Isaacson',
-    rating: 5,
-    genre: 'Biography',
-    summary: "The exclusive biography of Steve Jobs.",
-    emotionalImpact: 60,
-    personalNote: "Inspiring and terrifying.",
-    color: '#f0efeb',
-    spineStyle: 'pattern-lines',
-    height: 98,
-    rotation: 2,
-    position: { shelfId: 0, xOffset: 300 }
-  }
+  { id: '1', title: 'norwegian wood', author: 'haruki murakami', rating: 4, genre: 'fiction', summary: 'a nostalgic story of loss and sexuality.', emotionalImpact: 80, personalNote: 'made me feel lonely but in a good way.', color: '#daeaf6', spineStyle: 'simple', height: 95, rotation: -1, position: { shelfId: 0, xOffset: 50 } },
+  { id: '2', title: 'educated', author: 'tara westover', rating: 5, genre: 'memoir', summary: 'a woman who grows up in a survivalist family goes to college.', emotionalImpact: 90, personalNote: 'incredible resilience.', color: '#fce1e4', spineStyle: 'pattern-lines', height: 92, rotation: 1, position: { shelfId: 0, xOffset: 110 } },
+  { id: '3', title: 'atomic habits', author: 'james clear', rating: 4.5, genre: 'self-help', summary: 'tiny changes, remarkable results.', emotionalImpact: 40, personalNote: 'very practical.', color: '#fcf4dd', spineStyle: 'modern', height: 88, rotation: 0, position: { shelfId: 0, xOffset: 170 } }
+];
+
+export const INITIAL_ORNAMENTS: Ornament[] = [
+  { id: 'fm-player-default', type: 'fm-player', position: { shelfId: 1, xOffset: 100 } }
 ];
