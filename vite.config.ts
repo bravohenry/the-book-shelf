@@ -18,6 +18,18 @@ export default defineConfig(({ mode }) => {
         alias: {
           '@': path.resolve(__dirname, '.'),
         }
+      },
+      build: {
+        outDir: 'dist',
+        assetsDir: 'assets',
+        // 确保资源路径是相对路径，适配 Vercel 部署
+        base: './',
+        // 确保构建后的 HTML 文件名是 index.html
+        rollupOptions: {
+          input: {
+            main: path.resolve(__dirname, 'index.html')
+          }
+        }
       }
     };
 });
