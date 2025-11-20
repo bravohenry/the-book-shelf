@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="16" height="16" xmlns="http://www.w3.org/2000/svg">
+  <!-- 背景 -->
+  <rect width="16" height="16" rx="2.56" fill="#cdbba7"/>
+  
+  <!-- 书架 -->
+  <rect x="2.56" y="10" width="11.04" height="1.008" fill="#b5a493"/>
+  <rect x="2.56" y="6.24" width="11.04" height="1.008" fill="#b5a493"/>
+  <rect x="2.56" y="2.496" width="11.04" height="1.008" fill="#b5a493"/>
+  
+  <!-- 书籍 - 第一层 -->
+  <rect x="3.12" y="2.752" width="1.504" height="3.248" fill="#e8dff5" rx="0.128"/>
+  <rect x="5.008" y="2.752" width="1.504" height="3.248" fill="#fce1e4" rx="0.128"/>
+  <rect x="6.88" y="2.752" width="1.504" height="3.248" fill="#fcf4dd" rx="0.128"/>
+  <rect x="8.752" y="2.752" width="1.504" height="3.248" fill="#ddedea" rx="0.128"/>
+  <rect x="10.624" y="2.752" width="1.504" height="3.248" fill="#daeaf6" rx="0.128"/>
+  
+  <!-- 书籍 - 第二层 -->
+  <rect x="3.12" y="6.496" width="1.504" height="3.248" fill="#fff1e6" rx="0.128"/>
+  <rect x="5.008" y="6.496" width="1.504" height="3.248" fill="#fad2e1" rx="0.128"/>
+  <rect x="6.88" y="6.496" width="1.504" height="3.248" fill="#c5dedd" rx="0.128"/>
+  <rect x="8.752" y="6.496" width="1.504" height="3.248" fill="#dbe7e4" rx="0.128"/>
+  <rect x="10.624" y="6.496" width="1.504" height="3.248" fill="#f0efeb" rx="0.128"/>
+  
+  <!-- 书籍 - 第三层 -->
+  <rect x="3.12" y="10.256" width="1.504" height="3.248" fill="#eddcd2" rx="0.128"/>
+  <rect x="5.008" y="10.256" width="1.504" height="3.248" fill="#a8e6cf" rx="0.128"/>
+  <rect x="6.88" y="10.256" width="1.504" height="3.248" fill="#e8dff5" rx="0.128"/>
+  <rect x="8.752" y="10.256" width="1.504" height="3.248" fill="#fce1e4" rx="0.128"/>
+  <rect x="10.624" y="10.256" width="1.504" height="3.248" fill="#fcf4dd" rx="0.128"/>
+</svg>

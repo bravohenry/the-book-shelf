@@ -19,7 +19,7 @@ const THEMES = [
 ];
 
 // Royalty-free Lo-Fi track
-const LOFI_TRACK_URL = "https://cdn.pixabay.com/download/audio/2022/05/27/audio_1808fbf07a.mp3?filename=lofi-study-112762.mp3";
+const LOFI_TRACK_URL = "/audio/lofi-study.mp3";
 
 const App: React.FC = () => {
   // --- STATE WITH PERSISTENCE ---

@@ -1,0 +1,32 @@
+<svg width="128" height="128" xmlns="http://www.w3.org/2000/svg">
+  <!-- 背景 -->
+  <rect width="128" height="128" rx="20" fill="#cdbba7"/>
+  
+  <!-- 书架 -->
+  <rect x="20" y="80" width="88" height="8" fill="#b5a493"/>
+  <rect x="20" y="50" width="88" height="8" fill="#b5a493"/>
+  <rect x="20" y="20" width="88" height="8" fill="#b5a493"/>
+  
+  <!-- 书籍 -->
+  <!-- 第一层 -->
+  <rect x="25" y="22" width="12" height="26" fill="#e8dff5" rx="1"/>
+  <rect x="40" y="22" width="12" height="26" fill="#fce1e4" rx="1"/>
+  <rect x="55" y="22" width="12" height="26" fill="#fcf4dd" rx="1"/>
+  <rect x="70" y="22" width="12" height="26" fill="#ddedea" rx="1"/>
+  <rect x="85" y="22" width="12" height="26" fill="#daeaf6" rx="1"/>
+  
+  <!-- 第二层 -->
+  <rect x="25" y="52" width="12" height="26" fill="#fff1e6" rx="1"/>
+  <rect x="40" y="52" width="12" height="26" fill="#fad2e1" rx="1"/>
+  <rect x="55" y="52" width="12" height="26" fill="#c5dedd" rx="1"/>
+  <rect x="70" y="52" width="12" height="26" fill="#db7e4" rx="1"/>
+  <rect x="85" y="52" width="12" height="26" fill="#f0efeb" rx="1"/>
+  
+  <!-- 第三层 -->
+  <rect x="25" y="82" width="12" height="26" fill="#eddcd2" rx="1"/>
+  <rect x="40" y="82" width="12" height="26" fill="#a8e6cf" rx="1"/>
+  <rect x="55" y="82" width="12" height="26" fill="#e8dff5" rx="1"/>
+  <rect x="70" y="82" width="12" height="26" fill="#fce1e4" rx="1"/>
+  <rect x="85" y="82" width="12" height="26" fill="#fcf4dd" rx="1"/>
+</svg>
+

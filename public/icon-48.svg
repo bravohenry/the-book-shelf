@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="48" height="48" xmlns="http://www.w3.org/2000/svg">
+  <!-- 背景 -->
+  <rect width="48" height="48" rx="7.68" fill="#cdbba7"/>
+  
+  <!-- 书架 -->
+  <rect x="7.68" y="30" width="33.12" height="3.024" fill="#b5a493"/>
+  <rect x="7.68" y="18.72" width="33.12" height="3.024" fill="#b5a493"/>
+  <rect x="7.68" y="7.4879999999999995" width="33.12" height="3.024" fill="#b5a493"/>
+  
+  <!-- 书籍 - 第一层 -->
+  <rect x="9.36" y="8.256" width="4.5120000000000005" height="9.744" fill="#e8dff5" rx="0.384"/>
+  <rect x="15.024000000000001" y="8.256" width="4.5120000000000005" height="9.744" fill="#fce1e4" rx="0.384"/>
+  <rect x="20.64" y="8.256" width="4.5120000000000005" height="9.744" fill="#fcf4dd" rx="0.384"/>
+  <rect x="26.256" y="8.256" width="4.5120000000000005" height="9.744" fill="#ddedea" rx="0.384"/>
+  <rect x="31.872" y="8.256" width="4.5120000000000005" height="9.744" fill="#daeaf6" rx="0.384"/>
+  
+  <!-- 书籍 - 第二层 -->
+  <rect x="9.36" y="19.488" width="4.5120000000000005" height="9.744" fill="#fff1e6" rx="0.384"/>
+  <rect x="15.024000000000001" y="19.488" width="4.5120000000000005" height="9.744" fill="#fad2e1" rx="0.384"/>
+  <rect x="20.64" y="19.488" width="4.5120000000000005" height="9.744" fill="#c5dedd" rx="0.384"/>
+  <rect x="26.256" y="19.488" width="4.5120000000000005" height="9.744" fill="#dbe7e4" rx="0.384"/>
+  <rect x="31.872" y="19.488" width="4.5120000000000005" height="9.744" fill="#f0efeb" rx="0.384"/>
+  
+  <!-- 书籍 - 第三层 -->
+  <rect x="9.36" y="30.768" width="4.5120000000000005" height="9.744" fill="#eddcd2" rx="0.384"/>
+  <rect x="15.024000000000001" y="30.768" width="4.5120000000000005" height="9.744" fill="#a8e6cf" rx="0.384"/>
+  <rect x="20.64" y="30.768" width="4.5120000000000005" height="9.744" fill="#e8dff5" rx="0.384"/>
+  <rect x="26.256" y="30.768" width="4.5120000000000005" height="9.744" fill="#fce1e4" rx="0.384"/>
+  <rect x="31.872" y="30.768" width="4.5120000000000005" height="9.744" fill="#fcf4dd" rx="0.384"/>
+</svg>
